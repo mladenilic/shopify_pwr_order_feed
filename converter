@@ -25,16 +25,19 @@ csv = CSV.generate do |csv|
   csv << ['order_id', 'page_id', 'first_name', 'last_name', 'email', 'order_date', 'variant', 'user_id']
 
   xml.xpath('//item').each do |order_item|
-    csv << [
-      order_item.at('shopify|order_id').text,
-      '',
-      order_item.at('shopify|billing_address').at('shopify|first_name').text,
-      order_item.at('shopify|billing_address').at('shopify|last_name').text,
-      order_item.at('shopify|email').text,
-      order_item.at('shopify|created_at').text,
-      '',
-      ''
-    ]
+
+    order_item.xpath('./*/shopify:line_item').each do |item|
+      csv << [
+        order_item.at('shopify|order_id').text,
+        page_id_map[item.at('shopify|sku').text] || '',
+        order_item.at('shopify|billing_address').at('shopify|first_name').text,
+        order_item.at('shopify|billing_address').at('shopify|last_name').text,
+        order_item.at('shopify|email').text,
+        order_item.at('shopify|created_at').text,
+        '',
+        ''
+      ]
+    end
   end
 end
 
