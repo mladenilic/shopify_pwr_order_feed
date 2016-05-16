@@ -20,6 +20,8 @@ raise 'host parameter must be provided' if options[:host].nil?
 xml = Nokogiri::XML(open(options[:host], http_basic_authentication: [options[:username], options[:password]]))
 
 csv = CSV.generate do |csv|
+  csv << ['order_id', 'page_id', 'first_name', 'last_name', 'email', 'order_date', 'variant', 'user_id']
+
   xml.xpath('//item').each do |item|
     csv << [
       item.at('shopify|order_id').text,
