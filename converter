@@ -9,7 +9,7 @@ require 'json'
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = 'Sftp upload script'
+  opts.banner = 'Converts Shopify order feed xml to PowerReviews order feed csv'
 
   opts.on('-h', '--host URL', 'Shopify order feed url') { |host| options[:host] = host }
   opts.on('-u', '--username USERNAME', 'Admin username') { |username| options[:username] = username }
