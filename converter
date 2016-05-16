@@ -14,12 +14,14 @@ OptionParser.new do |opts|
   opts.on('-h', '--host URL', 'Shopify order feed url') { |host| options[:host] = host }
   opts.on('-u', '--username USERNAME', 'Admin username') { |username| options[:username] = username }
   opts.on('-p', '--password PASSWORD', 'Admin password') { |password| options[:password] = password }
+  opts.on('-m', '--map MAP', 'Path to page id map json file') { |map| options[:map] = map }
 end.parse!
 
-raise 'host parameter must be provided' if options[:host].nil?
+raise 'Host parameter must be provided' if options[:host].nil?
+raise 'Map file does not exist' if !options[:map].nil? && !File.exists?(options[:map])
 
 xml = Nokogiri::XML(open(options[:host], http_basic_authentication: [options[:username], options[:password]]))
-page_id_map = File.exists?('page-id-map.json') ? JSON.parse(File.read('page-id-map.json')) : {}
+page_id_map = options[:map].nil? ? {} : JSON.parse(File.read(options[:map]))
 
 csv = CSV.generate do |csv|
   csv << ['order_id', 'page_id', 'first_name', 'last_name', 'email', 'order_date', 'variant', 'user_id']
