@@ -5,6 +5,7 @@ require 'optparse'
 require 'nokogiri'
 require 'open-uri'
 require 'csv'
+require 'json'
 
 options = {}
 OptionParser.new do |opts|
@@ -18,18 +19,19 @@ end.parse!
 raise 'host parameter must be provided' if options[:host].nil?
 
 xml = Nokogiri::XML(open(options[:host], http_basic_authentication: [options[:username], options[:password]]))
+page_id_map = File.exists?('page-id-map.json') ? JSON.parse(File.read('page-id-map.json')) : {}
 
 csv = CSV.generate do |csv|
   csv << ['order_id', 'page_id', 'first_name', 'last_name', 'email', 'order_date', 'variant', 'user_id']
 
-  xml.xpath('//item').each do |item|
+  xml.xpath('//item').each do |order_item|
     csv << [
-      item.at('shopify|order_id').text,
+      order_item.at('shopify|order_id').text,
       '',
-      item.at('shopify|billing_address').at('shopify|first_name').text,
-      item.at('shopify|billing_address').at('shopify|last_name').text,
-      item.at('shopify|email').text,
-      item.at('shopify|created_at').text,
+      order_item.at('shopify|billing_address').at('shopify|first_name').text,
+      order_item.at('shopify|billing_address').at('shopify|last_name').text,
+      order_item.at('shopify|email').text,
+      order_item.at('shopify|created_at').text,
       '',
       ''
     ]
