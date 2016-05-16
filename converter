@@ -25,7 +25,6 @@ csv = CSV.generate do |csv|
   csv << ['order_id', 'page_id', 'first_name', 'last_name', 'email', 'order_date', 'variant', 'user_id']
 
   xml.xpath('//item').each do |order_item|
-
     order_item.xpath('./*/shopify:line_item').each do |item|
       csv << [
         order_item.at('shopify|order_id').text,
