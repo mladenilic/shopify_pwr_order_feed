@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'optparse'
+require 'nokogiri'
+require 'open-uri'
+require 'csv'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Sftp upload script'
+
+  opts.on('-h', '--host URL', 'Shopify order feed url') { |host| options[:host] = host }
+  opts.on('-u', '--username USERNAME', 'Admin username') { |username| options[:username] = username }
+  opts.on('-p', '--password PASSWORD', 'Admin password') { |password| options[:password] = password }
+end.parse!
+
+raise 'host parameter must be provided' if options[:host].nil?
+
+xml = Nokogiri::XML(open(options[:host], http_basic_authentication: [options[:username], options[:password]]))
+
+csv = CSV.generate do |csv|
+  xml.xpath('//item').each do |item|
+    csv << [
+      item.at('shopify|order_id').text,
+      '',
+      item.at('shopify|billing_address').at('shopify|first_name').text,
+      item.at('shopify|billing_address').at('shopify|last_name').text,
+      item.at('shopify|email').text,
+      item.at('shopify|created_at').text,
+      '',
+      ''
+    ]
+  end
+end
+
+puts csv
