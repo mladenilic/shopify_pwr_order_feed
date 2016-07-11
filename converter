@@ -6,6 +6,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'csv'
 require 'json'
+require 'date'
 
 options = {}
 OptionParser.new do |opts|
@@ -34,7 +35,7 @@ csv = CSV.generate do |csv|
         order_item.at('shopify|billing_address').at('shopify|first_name').text,
         order_item.at('shopify|billing_address').at('shopify|last_name').text,
         order_item.at('shopify|email').text,
-        order_item.at('shopify|created_at').text,
+        Date.strptime(order_item.at('shopify|created_at').text, '%a, %d %b %Y %H:%M:%S %z'),
         '',
         ''
       ]
